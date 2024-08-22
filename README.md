@@ -1,85 +1,132 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
-
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+# NestJS Application
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+This is a NestJS application that provides user management functionalities, including user creation, fetching user details, and handling user avatars. It integrates with RabbitMQ for event-driven communication and includes a simple email service.
 
-## Project setup
+## Table of Contents
 
-```bash
-$ npm install
+- [Installation](#installation)
+- [Environment Variables](#environment-variables)
+- [Running the Application](#running-the-application)
+- [Testing](#testing)
+- [Folder Structure](#folder-structure)
+- [Endpoints](#endpoints)
+
+## Installation
+
+1. Install Dependencies:
+
+   ```bash
+    cd project
+    npm install
+   ```
+
+## Environment Variables
+1. Create a .env file in the root directory and set the following variables:
+  ```env
+    RABBITMQ_URL=amqp://127.0.0.1:5672
+    MONGO_URI=                   //mongodb+srv://<username>:<password>@cluster0.5x4b4gx.mongodb.net
+    PORT=3000
+    EMAIL_HOST=smtp.gmail.com
+    EMAIL_PORT=587
+    EMAIL_USER=                                                       //gmail:xyz@gmail.com
+    EMAIL_PASS=                                                         //password
+  ```
+
+## Running the Application
+
+1. Ensure RabbitMQ is running.
+2. Start the application
+    ```bash
+    npm run start
+    ```
+3. The application should now be running at http://localhost:3000
+
+## Testing
+1. Unit Tests
+   ```bash
+    npm run test
+    ```
+
+## Folder Structure
+   ```arduino
+      src/
+      ├── user/
+      │   ├── user.controller.ts
+      │   ├── user.service.ts
+      │   ├── user.module.ts
+      │   ├── schemas/
+      │   │   └── user.schema.ts
+      │   └── __tests__/
+      │       ├── user.controller.spec.ts
+      │       └── user.service.spec.ts
+      ├── rabbitmq/
+      │   ├── rabbitmq.module.ts
+      │   └── rabbitmq.service.ts
+      ├── utils/
+      │   └── email.service.ts
 ```
 
-## Compile and run the project
+## Endpoints
+1. Create User
+    POST `/api/users`
+    Request Body
+    ```json
+      {
+        "name": "John Doe",
+        "email": "johndoe@example.com"
+      }
+    ```
+    Response
+    ```json
+        {
+          "id": "user_id",
+          "name": "John Doe",
+          "email": "johndoe@example.com"
+        }
+    ```
+This endpoint creates a new user, sends a welcome email, and emits a RabbitMQ event.
 
-```bash
-# development
-$ npm run start
+2. GET User from `reqres.in`
+    Request:
+      GET `https://reqres.in/api/users/{userId}`
+    Response:
+      ```json
+          {
+            "data": {
+                "id": 3,
+                "email": "emma.wong@reqres.in",
+                "first_name": "Emma",
+                "last_name": "Wong",
+                "avatar": "https://reqres.in/img/faces/3-image.jpg"
+            },
+            "support": {
+                "url": "https://reqres.in/#support-heading",
+                "text": "To keep ReqRes free, contributions towards server costs are appreciated!"
+            }
+          }
+          ```
 
-# watch mode
-$ npm run start:dev
 
-# production mode
-$ npm run start:prod
-```
 
-## Run tests
+3. Get User avatar
+    GET `/api/users/:userId/avatar`
 
-```bash
-# unit tests
-$ npm run test
+    Response
+    ```json
+      {
+        "avatar": "<base64_encoded_image>"
+      }
+    ```
+This endpoint fetches the user's avatar. If the avatar does not exist, it retrieves the avatar from a placeholder service and saves it locally.
 
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+4. Delete User avatar
+    DELETE `/api/users/:userId/avatar`
+    Response
+    ```json
+        {
+          "message": "Avatar deleted successfully."
+        }
+    ```
+    This endpoint deletes the user's avatar from the server.
